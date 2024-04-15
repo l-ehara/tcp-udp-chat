@@ -21,16 +21,18 @@ def receive():
                 print(message)
         except:
             # Close Connection When Error
-            print("An error occured!")
+            print("An error occurred!")
             client.close()
             break
         
 # Sending Messages To Server
 def write():
+    print("Type '/pm [nickname] [message]' to send a private message.")
     while True:
-        message = '{}: {}'.format(nickname, input(''))
-        client.send(message.encode('ascii'))
-        
+        message = input('')
+        if message:
+            client.send(message.encode('ascii'))
+
 # Starting Threads For Listening And Writing
 receive_thread = threading.Thread(target=receive)
 receive_thread.start()

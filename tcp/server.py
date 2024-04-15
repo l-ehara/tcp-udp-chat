@@ -23,18 +23,36 @@ def broadcast(message):
 def handle(client):
     while True:
         try:
-            # Broadcasting Messages
-            message = client.recv(1024)
-            broadcast(message)
+            message = client.recv(1024).decode('ascii')
+            if message.startswith('/pm'):
+                try:
+                    _, recipient_nickname, private_message = message.split(' ', 2)
+                    if recipient_nickname in nicknames:
+                        recipient_index = nicknames.index(recipient_nickname)
+                        recipient_client = clients[recipient_index]
+                        sender_index = clients.index(client)
+                        sender_nickname = nicknames[sender_index]
+                        recipient_client.send(f'PM from {sender_nickname}: {private_message}'.encode('ascii'))
+                    else:
+                        client.send(f'{recipient_nickname} is not online.'.encode('ascii'))
+                except ValueError:
+                    client.send('Invalid PM format. Use "/pm [nickname] [message]"\n'.encode('ascii'))
+            else:
+                # Ensure that the sender's nickname is prepended to broadcast messages
+                index = clients.index(client)
+                sender_nickname = nicknames[index]
+                broadcast_message = f'{sender_nickname}: {message}'
+                broadcast(broadcast_message.encode('ascii'))
         except:
-            # Removing And Closing Clients
+            # If an error occurs, remove the client
             index = clients.index(client)
-            clients.remove(client)
-            client.close()
             nickname = nicknames[index]
-            broadcast('{} left!'.format(nickname).encode('ascii'))
+            broadcast(f'{nickname} left!'.encode('ascii'))
+            clients.remove(client)
             nicknames.remove(nickname)
+            client.close()
             break
+
 
 
 #What it then does is receiving the message from the client 
