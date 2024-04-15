@@ -6,7 +6,7 @@ nickname = input("Choose your nickname: ")
 
 # Connecting To Server
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('127.0.0.1', 55555))
+client.connect(('127.0.0.2', 55555))
 
 # Listening to Server and Sending Nickname
 def receive():
@@ -28,6 +28,8 @@ def receive():
 # Sending Messages To Server
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
+    print("Type 'exit' to leave the chat room.")
+    print("Type anything else to broadbast your message.")
     while True:
         message = input('')
         if message:

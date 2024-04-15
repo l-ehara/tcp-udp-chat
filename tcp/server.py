@@ -2,7 +2,7 @@ import socket
 import threading
 
 # Connection Data
-host = '127.0.0.1'
+host = '127.0.0.2'
 port = 55555
 
 # Starting Server
@@ -37,6 +37,9 @@ def handle(client):
                         client.send(f'{recipient_nickname} is not online.'.encode('ascii'))
                 except ValueError:
                     client.send('Invalid PM format. Use "/pm [nickname] [message]"\n'.encode('ascii'))
+            elif message == 'exit':
+                client.close()
+                break
             else:
                 # Ensure that the sender's nickname is prepended to broadcast messages
                 index = clients.index(client)
