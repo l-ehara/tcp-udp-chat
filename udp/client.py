@@ -23,8 +23,6 @@ def receive():
 
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
-    print("Type 'exit' to leave the chat.")
-    print("Type anything else to send a public message.")
     while True:
         message = input('')
         if message:
