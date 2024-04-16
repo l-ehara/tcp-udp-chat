@@ -1,38 +1,43 @@
 import socket
 import threading
 
-# Server's IP and port
-server_ip = '127.0.0.1'
-server_port = 55555
-
-# Creating a UDP socket
-client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# Set up client's nickname
+# Choosing Nickname
 nickname = input("Choose your nickname: ")
-client.sendto(nickname.encode('ascii'), (server_ip, server_port))
 
+# Connecting To Server
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('127.0.0.2', 55555))
+
+# Listening to Server and Sending Nickname
 def receive():
     while True:
         try:
-            data, _ = client.recvfrom(1024)
-            print(data.decode('ascii'))
+            # Receive Message From Server
+            # If 'NICK' Send Nickname
+            message = client.recv(1024).decode('ascii')
+            if message == 'NICK':
+                client.send(nickname.encode('ascii'))
+            else:
+                print(message)
         except:
+            # Close Connection When Error
             print("An error occurred!")
+            client.close()
             break
-
+        
+# Sending Messages To Server
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
-    print("Type 'exit' to leave the chat.")
-    print("Type anything else to send a public message.")
+    print("Type 'exit' to leave the chat room.")
+    print("Type anything else to broadbast your message.")
     while True:
         message = input('')
         if message:
-            client.sendto(message.encode('ascii'), (server_ip, server_port))
+            client.send(message.encode('ascii'))
 
-# Start threads for listening and writing
+# Starting Threads For Listening And Writing
 receive_thread = threading.Thread(target=receive)
-receive_thread.start()  
+receive_thread.start()
 
 write_thread = threading.Thread(target=write)
 write_thread.start()

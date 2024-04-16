@@ -38,6 +38,7 @@ def handle(client):
                 except ValueError:
                     client.send('Invalid PM format. Use "/pm [nickname] [message]"\n'.encode('ascii'))
             elif message == 'exit':
+                broadcast(f'{nicknames[clients.index(client)]} left the chat.'.encode('ascii'))
                 client.close()
                 break
             else:
