@@ -2,28 +2,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Server",
+            "name": "Server TCP",
             "type": "debugpy",
             "request": "launch",
             "program": "tcp/server.py",
             "console": "integratedTerminal"
         },
         {
-            "name": "Client 1",
+            "name": "Client 1 TCP",
             "type": "debugpy",
             "request": "launch",
             "program": "tcp/client.py",
             "console": "integratedTerminal",
         },
         {
-            "name": "Client 2",
+            "name": "Client 2 TCP",
             "type": "debugpy",
             "request": "launch",
             "program": "tcp/client.py",
             "console": "integratedTerminal",
         },
         {
-            "name": "Client 3",
+            "name": "Client 3 TCP",
             "type": "debugpy",
             "request": "launch",
             "program": "tcp/client.py",
@@ -32,7 +32,7 @@
     ],
     "compounds": [
         {
-            "name": "Server and Clients",
+            "name": "Server and Clients TCP",
             "configurations": ["Server", "Client 1", "Client 2", "Client 3"]
         }
     ]
