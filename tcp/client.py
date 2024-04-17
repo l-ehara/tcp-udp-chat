@@ -28,11 +28,23 @@ def receive():
 # Sending Messages To Server
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
+    print("Type '/sendtxt [nickname] [filename]' to send a text file.")
     print("Type 'exit' to leave the chat room.")
-    print("Type anything else to broadbast your message.")
+    print("Type anything else to broadcast your message.")
     while True:
         message = input('')
-        if message:
+        if message.startswith('/sendtxt'):
+            try:
+                _, recipient_nickname, filename = message.split(' ', 2)
+                with open(filename, 'r') as file:
+                    contents = file.read()
+                file_message = f'/sendtxt {recipient_nickname} {contents}'
+                client.send(file_message.encode('ascii'))
+            except FileNotFoundError:
+                print("File not found. Please check the filename and try again.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+        elif message:
             client.send(message.encode('ascii'))
 
 # Starting Threads For Listening And Writing

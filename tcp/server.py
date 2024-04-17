@@ -25,37 +25,55 @@ def handle(client):
         try:
             message = client.recv(1024).decode('ascii')
             if message.startswith('/pm'):
-                try:
-                    _, recipient_nickname, private_message = message.split(' ', 2)
-                    if recipient_nickname in nicknames:
-                        recipient_index = nicknames.index(recipient_nickname)
-                        recipient_client = clients[recipient_index]
-                        sender_index = clients.index(client)
-                        sender_nickname = nicknames[sender_index]
-                        recipient_client.send(f'PM from {sender_nickname}: {private_message}'.encode('ascii'))
-                    else:
-                        client.send(f'{recipient_nickname} is not online.'.encode('ascii'))
-                except ValueError:
-                    client.send('Invalid PM format. Use "/pm [nickname] [message]"\n'.encode('ascii'))
+                _, recipient_nickname, private_message = message.split(' ', 2)
+                handle_pm(client, recipient_nickname, private_message)
+            elif message.startswith('/sendtxt'):
+                _, recipient_nickname, file_contents = message.split(' ', 2)
+                handle_sendtxt(client, recipient_nickname, file_contents)
             elif message == 'exit':
-                broadcast(f'{nicknames[clients.index(client)]} left the chat.'.encode('ascii'))
-                client.close()
-                break
+                handle_exit(client)
             else:
-                # Ensure that the sender's nickname is prepended to broadcast messages
-                index = clients.index(client)
-                sender_nickname = nicknames[index]
-                broadcast_message = f'{sender_nickname}: {message}'
-                broadcast(broadcast_message.encode('ascii'))
-        except:
-            # If an error occurs, remove the client
-            index = clients.index(client)
-            nickname = nicknames[index]
-            broadcast(f'{nickname} left!'.encode('ascii'))
-            clients.remove(client)
-            nicknames.remove(nickname)
-            client.close()
-            break
+                handle_broadcast(client, message)
+        except Exception as e:
+            handle_disconnect(client)
+
+def handle_pm(client, recipient_nickname, message):
+    if recipient_nickname in nicknames:
+        recipient_index = nicknames.index(recipient_nickname)
+        recipient_client = clients[recipient_index]
+        sender_index = clients.index(client)
+        sender_nickname = nicknames[sender_index]
+        recipient_client.send(f'PM from {sender_nickname}: {message}'.encode('ascii'))
+    else:
+        client.send(f'{recipient_nickname} is not online.'.encode('ascii'))
+
+def handle_sendtxt(client, recipient_nickname, file_contents):
+    if recipient_nickname in nicknames:
+        recipient_index = nicknames.index(recipient_nickname)
+        recipient_client = clients[recipient_index]
+        sender_index = clients.index(client)
+        sender_nickname = nicknames[sender_index]
+        recipient_client.send(f'File from {sender_nickname}: {file_contents}'.encode('ascii'))
+    else:
+        client.send(f'{recipient_nickname} is not online.'.encode('ascii'))
+
+def handle_broadcast(client, message):
+    index = clients.index(client)
+    sender_nickname = nicknames[index]
+    broadcast_message = f'{sender_nickname}: {message}'
+    broadcast(broadcast_message.encode('ascii'))
+
+def handle_exit(client):
+    broadcast(f'{nicknames[clients.index(client)]} left the chat.'.encode('ascii'))
+    client.close()
+
+def handle_disconnect(client):
+    index = clients.index(client)
+    nickname = nicknames[index]
+    broadcast(f'{nickname} left!'.encode('ascii'))
+    clients.remove(client)
+    nicknames.remove(nickname)
+    client.close()
 
 
 
