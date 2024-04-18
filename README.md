@@ -57,13 +57,14 @@ This repository contains a simple chat application implemented in Python that de
         ```bash 
         /sendtxt [nickname] [filename]
         ``` 
-    - *Note*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already a testfile(TCP/UDP).txt to facilitate the usage_
+    - *Note*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already a testfile(TCP/UDP).txt to facilitate the usage_.
 4. **Send a .txt file to another client:**   
     - Using a client, type:
         ```bash 
-        /sendtxt [nickname] [filename]
+        /sendfile [nickname] [filename]
         ``` 
-    - *Note*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already a testfile(TCP/UDP).txt to facilitate the usage_
+    - *Notes*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already a testfile(TCP/UDP).txt to facilitate the usage_.
+    - _The file will be sent to a folder path named `inbox/{nickname}`_.
 5. **Exit with a client:** 
     - Using a client, type:
         ```bash 
