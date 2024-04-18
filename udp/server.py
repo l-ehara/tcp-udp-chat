@@ -43,7 +43,7 @@ def handle():
                     server.sendto(f'PM from {sender_nickname}: {private_message}'.encode('ascii'), recipient_client)
                 else:
                     server.sendto(f'{recipient_nickname} is not online.'.encode('ascii'), client_address)
-            elif message == 'exit':
+            elif message == '/exit':
                 index = clients.index(client_address)
                 nickname = nicknames[index]
                 broadcast(f'{nickname} left!'.encode('ascii'), sender=client_address)

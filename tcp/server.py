@@ -30,7 +30,7 @@ def handle(client):
             elif message.startswith('/sendtxt'):
                 _, recipient_nickname, file_contents = message.split(' ', 2)
                 handle_sendtxt(client, recipient_nickname, file_contents)
-            elif message == 'exit':
+            elif message == '/exit':
                 handle_exit(client)
             else:
                 handle_broadcast(client, message)

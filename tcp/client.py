@@ -29,7 +29,7 @@ def receive():
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
     print("Type '/sendtxt [nickname] [filename]' to send a text file.")
-    print("Type 'exit' to leave the chat room.")
+    print("Type '/exit' to leave the chat room.")
     print("Type anything else to broadcast your message.")
     while True:
         message = input('')
