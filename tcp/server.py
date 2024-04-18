@@ -1,5 +1,7 @@
 import socket 
 import threading
+import os
+import base64
 
 # Connection Data
 host = '127.0.0.2'
@@ -30,8 +32,11 @@ def handle(client):
             elif message.startswith('/sendtxt'):
                 _, recipient_nickname, file_contents = message.split(' ', 2)
                 handle_sendtxt(client, recipient_nickname, file_contents)
+            elif message.startswith('/sendfile'):
+                _, recipient_nickname, filename = message.split(' ', 2)
+                handle_receive_file(client, recipient_nickname, filename)
             elif message == '/exit':
-                handle_exit(client)
+                handle_disconnect(client)
             else:
                 handle_broadcast(client, message)
         except Exception as e:
@@ -63,9 +68,37 @@ def handle_broadcast(client, message):
     broadcast_message = f'{sender_nickname}: {message}'
     broadcast(broadcast_message.encode('ascii'))
 
-def handle_exit(client):
-    broadcast(f'{nicknames[clients.index(client)]} left the chat.'.encode('ascii'))
-    client.close()
+def handle_receive_file(sender_client, recipient_nickname, filename):
+    recipient_index = nicknames.index(recipient_nickname) if recipient_nickname in nicknames else -1
+    if recipient_index != -1:
+        recipient_client = clients[recipient_index]
+        recipient_dir = f"./inbox/{recipient_nickname}/"
+        if not os.path.exists(recipient_dir):
+            os.makedirs(recipient_dir)
+        file_path = os.path.join(recipient_dir, filename)
+
+        try:
+            # Accumulate the received data
+            total_data = bytearray()
+            while True:
+                data = sender_client.recv(1024)
+                if b'EOF' in data:
+                    total_data.extend(data.replace(b'EOF', b''))
+                    break
+                total_data.extend(data)
+
+            # Decode the base64 data
+            file_data = base64.b64decode(total_data)
+
+            with open(file_path, 'wb') as file:
+                file.write(file_data)
+
+            recipient_client.send(f'File {filename} received in your inbox.'.encode('ascii'))
+        except Exception as e:
+            print(f"Failed to receive file: {e}")
+            handle_disconnect(sender_client)
+    else:
+        sender_client.send(f"{recipient_nickname} is not online.".encode('ascii'))
 
 def handle_disconnect(client):
     index = clients.index(client)
