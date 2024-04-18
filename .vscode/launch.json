@@ -28,12 +28,44 @@
             "request": "launch",
             "program": "tcp/client.py",
             "console": "integratedTerminal",
+        },
+        {
+            "name": "Server UDP",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "udp/server.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Client 1 UDP",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "udp/client.py",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Client 2 UDP",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "udp/client.py",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Client 3 UDP",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "udp/client.py",
+            "console": "integratedTerminal",
         }
     ],
     "compounds": [
         {
             "name": "Server and Clients TCP",
-            "configurations": ["Server", "Client 1", "Client 2", "Client 3"]
+            "configurations": ["Server TCP", "Client 1 TCP", "Client 2 TCP", "Client 3 TCP"]
+        },
+        {
+            "name": "Server and Clients UDP",
+            "configurations": ["Server UDP", "Client 1 UDP", "Client 2 UDP", "Client 3 UDP"]
         }
     ]
 }
