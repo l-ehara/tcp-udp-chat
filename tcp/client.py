@@ -1,42 +1,52 @@
 import socket
 import threading
+import os
+import base64
 
-# Choosing Nickname
 nickname = input("Choose your nickname: ")
+defaultpath = "./tcp/"
 
-# Connecting To Server
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(('127.0.0.2', 55555))
 
-# Listening to Server and Sending Nickname
 def receive():
     while True:
         try:
-            # Receive Message From Server
-            # If 'NICK' Send Nickname
             message = client.recv(1024).decode('ascii')
             if message == 'NICK':
                 client.send(nickname.encode('ascii'))
             else:
                 print(message)
-        except:
-            # Close Connection When Error
-            print("An error occurred!")
+        except Exception as e:
+            print("An error occurred!", e)
             client.close()
             break
-        
-# Sending Messages To Server
+
 def write():
-    print("Type '/pm [nickname] [message]' to send a private message.")
-    print("Type '/sendtxt [nickname] [filename]' to send a text file.")
-    print("Type '/exit' to leave the chat room.")
-    print("Type anything else to broadcast your message.")
+    print("Commands:\n'/pm [nickname] [message]'\n'/sendtxt [nickname] [filename]'\n'/sendfile [nickname] [filename]'\n'/exit'")
     while True:
         message = input('')
-        if message.startswith('/sendtxt'):
+        if message.startswith('/sendfile'):
+            _, recipient_nickname, filename = message.split(' ', 2)
+            fullpath = os.path.join(defaultpath, filename)
+            try:
+                with open(fullpath, 'rb') as file:
+                    file_data = file.read()
+                    encoded_data = base64.b64encode(file_data)
+                    # Send command along with filename, and its length clearly delineated
+                    header = f'/sendfile {recipient_nickname} {filename} {len(encoded_data)}'
+                    client.send(header.encode('ascii'))
+                    client.send(encoded_data)  # Send the file data separately
+                    client.send(b'EOF')  # End of file marker
+            except FileNotFoundError:
+                print("File not found. Please check the filename and try again.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+        elif message.startswith('/sendtxt'):
             try:
                 _, recipient_nickname, filename = message.split(' ', 2)
-                with open(filename, 'r') as file:
+                fullpath = os.path.join(defaultpath, filename)
+                with open(fullpath, 'r') as file:
                     contents = file.read()
                 file_message = f'/sendtxt {recipient_nickname} {contents}'
                 client.send(file_message.encode('ascii'))
@@ -47,9 +57,7 @@ def write():
         elif message:
             client.send(message.encode('ascii'))
 
-# Starting Threads For Listening And Writing
 receive_thread = threading.Thread(target=receive)
-receive_thread.start()
-
 write_thread = threading.Thread(target=write)
+receive_thread.start()
 write_thread.start()

@@ -1,0 +1,7 @@
+Hello,
+
+This is a test file to ensure the file transfer capability of our chat application is functioning correctly.
+If you are reading this, it means the file transfer was successful.
+
+Best Regards,
+Me
