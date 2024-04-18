@@ -34,7 +34,7 @@ def write():
                     file_data = file.read()
                     encoded_data = base64.b64encode(file_data)
                     # Send command along with filename, and its length clearly delineated
-                    header = f'/sendfile {recipient_nickname} {filename} {len(encoded_data)}'
+                    header = f'/sendfile {recipient_nickname} {filename}'
                     client.send(header.encode('ascii'))
                     client.send(encoded_data)  # Send the file data separately
                     client.send(b'EOF')  # End of file marker
