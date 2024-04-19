@@ -1,5 +1,7 @@
 import socket
 import threading
+import os
+import base64
 
 # Connection Data
 host = '127.0.0.1'
@@ -15,8 +17,27 @@ nicknames = []
 
 def broadcast(message, sender=None):
     for client in clients:
-        if client != sender:
-            server.sendto(message, client)
+        server.sendto(message, client)
+
+def handle_sendfile(sender_nickname, recipient_nickname, filename, encoded_file_data, sender_address):
+    if recipient_nickname in nicknames:
+        recipient_index = nicknames.index(recipient_nickname)
+        recipient_client = clients[recipient_index]
+        # Decode the base64 encoded file data
+        file_data = base64.b64decode(encoded_file_data.encode('ascii'))
+
+        # Save the file to a specific directory for the recipient
+        recipient_dir = f"./udp_inbox/{recipient_nickname}/"
+        if not os.path.exists(recipient_dir):
+            os.makedirs(recipient_dir)
+        file_path = os.path.join(recipient_dir, filename)
+        with open(file_path, 'wb') as file:
+            file.write(file_data)
+        
+        server.sendto(f'File {filename} from {sender_nickname} successfully received and saved.'.encode('ascii'), recipient_client)
+    else:
+        server.sendto(f'{recipient_nickname} is not online.'.encode('ascii'), sender_address)
+
 
 def handle_pm(sender_nickname, recipient_nickname, private_message, sender_address):
     if recipient_nickname in nicknames:
@@ -61,6 +82,11 @@ def handle():
                 sender_index = clients.index(client_address)
                 sender_nickname = nicknames[sender_index]
                 handle_sendtxt(sender_nickname, recipient_nickname, file_contents, client_address)
+            elif message.startswith('/sendfile'):
+                _, recipient_nickname, filename, encoded_file_data = message.split(' ', 3)
+                sender_index = clients.index(client_address)
+                sender_nickname = nicknames[sender_index]
+                handle_sendfile(sender_nickname, recipient_nickname, filename, encoded_file_data, client_address)
             elif message == '/exit':
                 index = clients.index(client_address)
                 nickname = nicknames[index]

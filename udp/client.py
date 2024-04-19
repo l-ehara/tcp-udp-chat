@@ -1,8 +1,9 @@
 import socket
 import threading
 import os
+import base64
 
-defaultpath = "./tcp/"
+defaultpath = "./udp/"
 
 # Server's IP and port
 server_ip = '127.0.0.1'
@@ -26,7 +27,8 @@ def receive():
 
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
-    print("Type '/sendtxt [nickname] [filename]' to send a text file.")
+    print("Type '/sendtxt [nickname] [filename]' to send a text file content.")
+    print("Type '/sendfile [nickname] [filename]' to send a text file.")
     print("Type '/exit' to leave the chat room.")
     print("Type anything else to broadcast your message.")
     while True:
@@ -39,6 +41,19 @@ def write():
                     contents = file.read()
                 file_message = f'/sendtxt {recipient_nickname} {contents}'
                 client.sendto(file_message.encode('ascii'), (server_ip, server_port))
+            except FileNotFoundError:
+                print("File not found. Please check the filename and try again.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+        elif message.startswith('/sendfile'):
+            try:
+                _, recipient_nickname, filename = message.split(' ', 2)
+                fullpath = os.path.join(defaultpath, filename)
+                with open(fullpath, 'rb') as file:
+                    file_data = file.read()
+                    encoded_data = base64.b64encode(file_data).decode('ascii')
+                    file_message = f'/sendfile {recipient_nickname} {filename} {encoded_data}'
+                    client.sendto(file_message.encode('ascii'), (server_ip, server_port))
             except FileNotFoundError:
                 print("File not found. Please check the filename and try again.")
             except Exception as e:
