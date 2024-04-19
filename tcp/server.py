@@ -72,7 +72,7 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
     recipient_index = nicknames.index(recipient_nickname) if recipient_nickname in nicknames else -1
     if recipient_index != -1:
         recipient_client = clients[recipient_index]
-        recipient_dir = f"./inbox/{recipient_nickname}/"
+        recipient_dir = f"./tcp_inbox/{recipient_nickname}/"
         if not os.path.exists(recipient_dir):
             os.makedirs(recipient_dir)
         file_path = os.path.join(recipient_dir, filename)
