@@ -9,9 +9,15 @@ This repository contains a simple chat application implemented in Python that de
 - Python 3.x
 - Access to a command-line interface
 
-### Running the Application
+## Running the Application
 
-*Note*: **ALWAYS RUN THE SERVER FIRST!**
+### Launch mode:
+
+- You can use the implemented run options to select to run **UDP** or **TCP** Clients or Servers. There is also an option to run a **Server with 3 Clients** in one click.
+
+*Note*: _If you are going to run Servers and Clients via Bash or one by one with the launcher, in order to have a flawless experience,_ **ALWAYS RUN THE SERVER FIRST!**
+
+### Running via Bash:
 
 #### TCP Chat
 1. **Start the TCP Server:**
@@ -63,7 +69,7 @@ This repository contains a simple chat application implemented in Python that de
         ```bash 
         /sendfile [nickname] [filename]
         ``` 
-    - *Notes*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already a testfile(TCP/UDP).txt to facilitate the usage_.
+    - *Notes*: _The file has to be into the **tcp/** or **udp/** folder depending on which you are using. There is already some files: **testfile(TCP/UDP).txt**, **1200.txt** (1200 bytes file), **2000.txt** (2000 bytes file) to facilitate the usage_.
     - _The file will be sent to a folder path named `inbox/{nickname}`_.
 5. **Exit with a client:** 
     - Using a client, type:
