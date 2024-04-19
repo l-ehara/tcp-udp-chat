@@ -88,7 +88,6 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
         file_path = os.path.join(recipient_dir, filename)
 
         try:
-            # Accumulate the received data
             total_data = bytearray()
             while True:
                 data = sender_client.recv(1024)
@@ -97,7 +96,6 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
                     break
                 total_data.extend(data)
 
-            # Decode the base64 data
             file_data = base64.b64decode(total_data)
 
             with open(file_path, "wb") as file:
@@ -121,17 +119,6 @@ def handle_disconnect(client):
     nicknames.remove(nickname)
     client.close()
 
-
-# What it then does is receiving the message from the client
-# (if he sends any) and broadcasting it to all connected clients.
-# So when one client sends a message, everyone else can see this message.
-# Now if for some reason there is an error with the connection to this client,
-# we remove it and its nickname, close the connection and broadcast that this
-# client has left the chat. After that we break the loop and this thread comes
-# to an end. Quite simple. We are almost done with the server but we need one final function.
-
-
-# Receiving Function
 def receive():
     while True:
         # Accept Connection

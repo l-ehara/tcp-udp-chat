@@ -27,10 +27,8 @@ def handle_sendfile(
     if recipient_nickname in nicknames:
         recipient_index = nicknames.index(recipient_nickname)
         recipient_client = clients[recipient_index]
-        # Decode the base64 encoded file data
         file_data = base64.b64decode(encoded_file_data.encode("ascii"))
 
-        # Save the file to a specific directory for the recipient
         recipient_dir = f"./udp_inbox/{recipient_nickname}/"
         if not os.path.exists(recipient_dir):
             os.makedirs(recipient_dir)
