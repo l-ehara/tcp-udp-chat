@@ -52,7 +52,7 @@ This repository contains a simple chat application implemented in Python that de
 ## Features
 
 1. **Broadcast a message:** 
-    - Using a client, type anything and the message is going to be broadcasted.
+    - Using a client, type a message without any of the commands below and it will be broadcasted.
 2. **Send a Private Message:** 
     - Using a client, type: 
         ```bash 
