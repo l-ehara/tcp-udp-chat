@@ -4,7 +4,7 @@ import os
 import base64
 
 # Connection Data
-host = "127.0.0.2"
+host = "127.0.0.6"
 port = 55555
 
 # Starting Server
@@ -91,13 +91,14 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
             total_data = bytearray()
             while True:
                 data = sender_client.recv(1024)
-                if b"EOF" in data:
-                    total_data.extend(data.replace(b"EOF", b""))
+                if data.endswith(b"EOF"):
+                    data = data[:-3]  # Strip the 'EOF' marker before decoding
+                    total_data.extend(data)
                     break
                 total_data.extend(data)
 
+            # Decode and write the file data
             file_data = base64.b64decode(total_data)
-
             with open(file_path, "wb") as file:
                 file.write(file_data)
 
@@ -106,7 +107,6 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
             )
         except Exception as e:
             print(f"Failed to receive file: {e}")
-            handle_disconnect(sender_client)
     else:
         sender_client.send(f"{recipient_nickname} is not online.".encode("ascii"))
 

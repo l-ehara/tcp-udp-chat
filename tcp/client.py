@@ -7,7 +7,7 @@ nickname = input("Choose your nickname: ")
 defaultpath = "./tcp/"
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("127.0.0.2", 55555))
+client.connect(("127.0.0.6", 55555))
 
 
 def receive():
@@ -30,6 +30,7 @@ def write():
     )
     while True:
         message = input("")
+        # In the write() function
         if message.startswith("/sendfile"):
             _, recipient_nickname, filename = message.split(" ", 2)
             fullpath = os.path.join(defaultpath, filename)
@@ -37,9 +38,12 @@ def write():
                 with open(fullpath, "rb") as file:
                     file_data = file.read()
                     encoded_data = base64.b64encode(file_data)
+                    # First, send the command with the recipient and the filename
                     header = f"/sendfile {recipient_nickname} {filename}"
                     client.send(header.encode("ascii"))
-                    client.send(encoded_data) 
+                    client.send(b" ")  # Delimiter or a separate message
+                    # Then, send the encoded file data followed by 'EOF'
+                    client.send(encoded_data)
                     client.send(b"EOF")
             except FileNotFoundError:
                 print("File not found. Please check the filename and try again.")
