@@ -3,22 +3,18 @@ import threading
 import os
 import base64
 
-# Connection Data
-host = "127.0.0.1"
+host = "127.0.0.5"
 port = 55555
-
-# Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind((host, port))
-
-# Lists For Clients and Their Nicknames
 clients = []
 nicknames = []
-
+file_data_chunks = {}
 
 def broadcast(message, sender=None):
     for client in clients:
-        server.sendto(message, client)
+        if client != sender:
+            server.sendto(message, client)
 
 
 def handle_sendfile(
@@ -94,7 +90,10 @@ def handle():
                 broadcast(f"{message} joined!".encode("ascii"))
                 print(f"Connected with {client_address} with nickname {message}")
                 continue
-            if message.startswith("/pm"):
+            if message.startswith("/filedata"):
+                _, recipient_nickname, encoded_chunk = message.split(" ", 2)
+                file_data_chunks.setdefault(recipient_nickname, []).append(encoded_chunk)
+            elif message.startswith("/pm"):
                 _, recipient_nickname, private_message = message.split(" ", 2)
                 sender_index = clients.index(client_address)
                 sender_nickname = nicknames[sender_index]
@@ -109,18 +108,22 @@ def handle():
                     sender_nickname, recipient_nickname, file_contents, client_address
                 )
             elif message.startswith("/sendfile"):
-                _, recipient_nickname, filename, encoded_file_data = message.split(
-                    " ", 3
-                )
-                sender_index = clients.index(client_address)
-                sender_nickname = nicknames[sender_index]
-                handle_sendfile(
-                    sender_nickname,
-                    recipient_nickname,
-                    filename,
-                    encoded_file_data,
-                    client_address,
-                )
+                _, recipient_nickname, filename = message.split(" ", 2)
+                file_data_chunks[recipient_nickname + "_filename"] = filename
+            elif message.startswith("/endfile"):
+                _, recipient_nickname = message.split(" ", 1)
+                filename = file_data_chunks.get(recipient_nickname + "_filename")
+                if filename:
+                    file_data = base64.b64decode(''.join(file_data_chunks[recipient_nickname]))
+                    recipient_dir = f"./udp_inbox/{recipient_nickname}/"
+                    os.makedirs(recipient_dir, exist_ok=True)
+                    file_path = os.path.join(recipient_dir, filename)
+                    with open(file_path, "wb") as file:
+                        file.write(file_data)
+                    server.sendto(f"File {filename} successfully received.".encode("ascii"), client_address)
+                    # Clean up
+                    del file_data_chunks[recipient_nickname]
+                    del file_data_chunks[recipient_nickname + "_filename"]
             elif message == "/exit":
                 index = clients.index(client_address)
                 nickname = nicknames[index]

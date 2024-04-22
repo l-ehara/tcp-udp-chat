@@ -4,18 +4,21 @@ import os
 import base64
 
 defaultpath = "./udp/"
-
-# Server's IP and port
-server_ip = "127.0.0.1"
+server_ip = "127.0.0.5"
 server_port = 55555
-
-# Creating a UDP socket
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# Set up client's nickname
 nickname = input("Choose your nickname: ")
 client.sendto(nickname.encode("ascii"), (server_ip, server_port))
 
+def send_file_in_chunks(filepath, recipient_nickname, chunk_size=508):
+    with open(filepath, 'rb') as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break  # File transmission is done
+            encoded_chunk = base64.b64encode(chunk)
+            client.sendto(f"/filedata {recipient_nickname} {encoded_chunk.decode('ascii')}".encode('ascii'), (server_ip, server_port))
+        client.sendto(f"/endfile {recipient_nickname}".encode('ascii'), (server_ip, server_port))
 
 def receive():
     while True:
@@ -26,7 +29,6 @@ def receive():
             print("An error occurred!")
             break
 
-
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
     print("Type '/sendtxt [nickname] [filename]' to send a text file content.")
@@ -35,42 +37,18 @@ def write():
     print("Type anything else to broadcast your message.")
     while True:
         message = input("")
-        if message.startswith("/sendtxt"):
-            try:
-                _, recipient_nickname, filename = message.split(" ", 2)
-                fullpath = os.path.join(defaultpath, filename)
-                with open(fullpath, "r") as file:
-                    contents = file.read()
-                file_message = f"/sendtxt {recipient_nickname} {contents}"
-                client.sendto(file_message.encode("ascii"), (server_ip, server_port))
-            except FileNotFoundError:
+        if message.startswith("/sendfile"):
+            _, recipient_nickname, filename = message.split(" ", 2)
+            fullpath = os.path.join(defaultpath, filename)
+            if os.path.isfile(fullpath):
+                client.sendto(f"/sendfile {recipient_nickname} {filename}".encode("ascii"), (server_ip, server_port))
+                send_file_in_chunks(fullpath, recipient_nickname)
+            else:
                 print("File not found. Please check the filename and try again.")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-        elif message.startswith("/sendfile"):
-            try:
-                _, recipient_nickname, filename = message.split(" ", 2)
-                fullpath = os.path.join(defaultpath, filename)
-                with open(fullpath, "rb") as file:
-                    file_data = file.read()
-                    encoded_data = base64.b64encode(file_data).decode("ascii")
-                    file_message = (
-                        f"/sendfile {recipient_nickname} {filename} {encoded_data}"
-                    )
-                    client.sendto(
-                        file_message.encode("ascii"), (server_ip, server_port)
-                    )
-            except FileNotFoundError:
-                print("File not found. Please check the filename and try again.")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-        elif message:
+        else:
             client.sendto(message.encode("ascii"), (server_ip, server_port))
 
-
-# Start threads for listening and writing
 receive_thread = threading.Thread(target=receive)
 receive_thread.start()
-
 write_thread = threading.Thread(target=write)
 write_thread.start()
