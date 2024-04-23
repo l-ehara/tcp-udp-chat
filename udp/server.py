@@ -3,20 +3,26 @@ import threading
 import os
 import base64
 
+# Defining connections
 host = "127.0.0.5"
 port = 55555
+
+# Client - Server connection
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind((host, port))
+
+# Saving clients and chinks
 clients = []
 nicknames = []
 file_data_chunks = {}
 
+#Broadcast method
 def broadcast(message, sender=None):
     for client in clients:
         if client != sender:
             server.sendto(message, client)
 
-
+# File sending handler
 def handle_sendfile(
     sender_nickname, recipient_nickname, filename, encoded_file_data, sender_address
 ):
@@ -43,7 +49,7 @@ def handle_sendfile(
             f"{recipient_nickname} is not online.".encode("ascii"), sender_address
         )
 
-
+# Provate message handler
 def handle_pm(sender_nickname, recipient_nickname, private_message, sender_address):
     if recipient_nickname in nicknames:
         recipient_index = nicknames.index(recipient_nickname)
@@ -57,7 +63,7 @@ def handle_pm(sender_nickname, recipient_nickname, private_message, sender_addre
             f"{recipient_nickname} is not online.".encode("ascii"), sender_address
         )
 
-
+# Send txt handler
 def handle_sendtxt(sender_nickname, recipient_nickname, file_contents, sender_address):
     if recipient_nickname in nicknames:
         recipient_index = nicknames.index(recipient_nickname)
@@ -71,14 +77,14 @@ def handle_sendtxt(sender_nickname, recipient_nickname, file_contents, sender_ad
             f"{recipient_nickname} is not online.".encode("ascii"), sender_address
         )
 
-
+# Disconnectong handler
 def handle_exit(nickname, sender_address):
     index = clients.index(sender_address)
     broadcast(f"{nickname} left!".encode("ascii"), sender=sender_address)
     clients.remove(sender_address)
     nicknames.remove(nickname)
 
-
+# Handler distribution
 def handle():
     while True:
         try:

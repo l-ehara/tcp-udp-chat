@@ -44,7 +44,7 @@ def handle(client):
         except Exception as e:
             handle_disconnect(client)
 
-
+# Private messages handler
 def handle_pm(client, recipient_nickname, message):
     if recipient_nickname in nicknames:
         recipient_index = nicknames.index(recipient_nickname)
@@ -55,7 +55,7 @@ def handle_pm(client, recipient_nickname, message):
     else:
         client.send(f"{recipient_nickname} is not online.".encode("ascii"))
 
-
+# Send txt file content method
 def handle_sendtxt(client, recipient_nickname, file_contents):
     if recipient_nickname in nicknames:
         recipient_index = nicknames.index(recipient_nickname)
@@ -68,14 +68,14 @@ def handle_sendtxt(client, recipient_nickname, file_contents):
     else:
         client.send(f"{recipient_nickname} is not online.".encode("ascii"))
 
-
+# Broadcast messages handler
 def handle_broadcast(client, message):
     index = clients.index(client)
     sender_nickname = nicknames[index]
     broadcast_message = f"{sender_nickname}: {message}"
     broadcast(broadcast_message.encode("ascii"))
 
-
+# Receiving files handler
 def handle_receive_file(sender_client, recipient_nickname, filename):
     recipient_index = (
         nicknames.index(recipient_nickname) if recipient_nickname in nicknames else -1
@@ -110,7 +110,7 @@ def handle_receive_file(sender_client, recipient_nickname, filename):
     else:
         sender_client.send(f"{recipient_nickname} is not online.".encode("ascii"))
 
-
+# Exiting handler
 def handle_disconnect(client):
     index = clients.index(client)
     nickname = nicknames[index]

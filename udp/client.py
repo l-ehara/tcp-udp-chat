@@ -3,13 +3,17 @@ import threading
 import os
 import base64
 
+# Defining client IP, port and path to files
 defaultpath = "./udp/"
 server_ip = "127.0.0.5"
 server_port = 55555
+
+# Client - Server connection
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 nickname = input("Choose your nickname: ")
 client.sendto(nickname.encode("ascii"), (server_ip, server_port))
 
+# Fragmenting files
 def send_file_in_chunks(filepath, recipient_nickname, chunk_size=508):
     with open(filepath, 'rb') as file:
         while True:
@@ -20,6 +24,7 @@ def send_file_in_chunks(filepath, recipient_nickname, chunk_size=508):
             client.sendto(f"/filedata {recipient_nickname} {encoded_chunk.decode('ascii')}".encode('ascii'), (server_ip, server_port))
         client.sendto(f"/endfile {recipient_nickname}".encode('ascii'), (server_ip, server_port))
 
+# Receiving function
 def receive():
     while True:
         try:
@@ -29,6 +34,7 @@ def receive():
             print("An error occurred!")
             break
 
+# Client "interface" / message sending method
 def write():
     print("Type '/pm [nickname] [message]' to send a private message.")
     print("Type '/sendtxt [nickname] [filename]' to send a text file content.")
@@ -48,6 +54,7 @@ def write():
         else:
             client.sendto(message.encode("ascii"), (server_ip, server_port))
 
+# Starting threads
 receive_thread = threading.Thread(target=receive)
 receive_thread.start()
 write_thread = threading.Thread(target=write)

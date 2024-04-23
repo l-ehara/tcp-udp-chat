@@ -3,13 +3,15 @@ import threading
 import os
 import base64
 
+# Nickname choosing
 nickname = input("Choose your nickname: ")
 defaultpath = "./tcp/"
 
+# Client - Server connection
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.6", 55555))
 
-
+# Client revceiving method
 def receive():
     while True:
         try:
@@ -23,9 +25,9 @@ def receive():
             client.close()
             break
 
-
+# Client "interface" / message sending method
 def write():
-    print(
+    print( # Choice menu
         "Commands:\n'/pm [nickname] [message]'\n'/sendtxt [nickname] [filename]'\n'/sendfile [nickname] [filename]'\n'/exit'"
     )
     while True:
@@ -64,7 +66,7 @@ def write():
         elif message:
             client.send(message.encode("ascii"))
 
-
+# Starting threads
 receive_thread = threading.Thread(target=receive)
 write_thread = threading.Thread(target=write)
 receive_thread.start()
